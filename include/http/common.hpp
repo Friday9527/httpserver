@@ -8,12 +8,14 @@
 //#include "connection.hpp"
 #include <memory>
 #include <functional>
-
+#include <boost/asio.hpp>
 namespace http{
     class connection;
     typedef std::shared_ptr<connection> connection_ptr;
 
     typedef std::function<void(connection_ptr)> connection_cb;
+
+    typedef std::vector<boost::asio::const_buffer> write_buffer;
 }
 
 

@@ -13,70 +13,56 @@ namespace http {
         std::size_t position = 0;
         std::size_t lastPos = 0;
 
-        auto copyFunction = [](char *data, int begin, int length, std::string &str){
+        auto copyFunction = [buffer](int begin, int length, std::string &str){
             for(int i = 0; i < length; i++){
-                str += data[i + begin];
+                str += buffer[i + begin];
             }
         };
 
-        auto findChar = [](socket_buffer buffer1, char c, size_t begin) ->int {
-            for(int i = begin; i < buffer1.size(); i++){
-                if(buffer1[i] == c){
+        auto findChar = [buffer](char c, size_t begin) ->int {
+            for(int i = begin; i < buffer.size(); i++){
+                if(buffer[i] == c){
                     return i;
                 }
             }
             return 0;
         };
-        std::cout << buffer.data() << std::endl;
+//        std::cout << buffer.data() << std::endl;
 
         //read meth path and http/version
-        position = findChar(buffer, ' ', 0);
-        copyFunction(buffer.data(), 0, position, method);
+        position = findChar(' ', 0);
+        copyFunction(0, position, method);
         //path
         lastPos = position + 1;
-        position = findChar(buffer, ' ', lastPos);
-        copyFunction(buffer.data(), lastPos, position - lastPos, path);
+        position = findChar(' ', lastPos);
+        copyFunction(lastPos, position - lastPos, path);
         //version
         lastPos = position + 1;
-        position = findChar(buffer, '\r', lastPos);
-        copyFunction(buffer.data(), lastPos, position - lastPos, version);
+        position = findChar('\r', lastPos);
+        copyFunction(lastPos, position - lastPos, version);
 
-//
-        std::cout << method << std::endl;
-//        std::cout << path << std::endl;
-//        std::cout << version << std::endl;
-        //read other heander
         while(true){
             header h;
             lastPos = position + 2;
             if(buffer[lastPos] == '\r' && buffer[lastPos + 1] == '\n'){
                 //read param
 
+                for(int i = lastPos + 2; i < length; i++){
+                    body.push_back(buffer[i]);
+                }
                 break;
             }
 
-            position = findChar(buffer, ':', lastPos + 2);
+            position = findChar(':', lastPos + 2);
             if(position != 0){
-                copyFunction(buffer.data(), lastPos, position - lastPos, h.name);
+                copyFunction(lastPos, position - lastPos, h.name);
             }
 
             lastPos = position;
-            position = findChar(buffer, '\r', lastPos + 2);
+            position = findChar('\r', lastPos + 2);
             if(position != 0){
-                copyFunction(buffer.data(), lastPos + 2, position - lastPos - 2, h.value);
+                copyFunction(lastPos + 2, position - lastPos - 2, h.value);
             }
-
-
-//            std::cout << h.name << std::endl;
-//            std::cout << h.name.size() << std::endl;
-//            std::cout << h.value << std::endl;
-//            std::cout << h.value.size() << std::endl;
-//
-//            if(h.value.size() > 0 && h.name.size() > 0){
-//                headers.push_back(h);
-//            }
-
-
         }
 
     }
@@ -89,7 +75,7 @@ namespace http {
     }
 
     connection::~connection() {
-        std::cout << "~connection() \n";
+//        std::cout << "~connection() \n";
     }
 
     void connection::start() {
@@ -101,17 +87,13 @@ namespace http {
                     request req(m_buffer, bytes_transferred);
                     m_request = req;
                     if(m_cb){
-//                        auto mmself(self->shared_from_this());
                         boost::thread t([this, self](){
                             m_cb(self);
                         });
                     }
-
                 }catch (std::exception exception){
                     std::cout << exception.what() << std::endl;
                 }
-
-
             }
             else{
                 std::cout << " error \n";
@@ -135,7 +117,50 @@ namespace http {
     }
 
     void connection::postReply(reply rep) {
-
+        auto self(shared_from_this());
+        m_socket.async_write_some(rep.get_write_buffer(),[this, self](boost::system::error_code ec, std::size_t){
+            if(!ec){
+                m_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+            }
+            if(ec != boost::asio::error::operation_aborted){
+                m_managerCon.removeConnection(self);
+            }
+        });
     }
 
+    //hanle replay buffer
+    write_buffer reply::get_write_buffer() {
+        write_buffer buffer;
+        const char name_value_separator[] = { ':', ' ' };
+        const char crlf[] = { '\r', '\n' };
+        switch (this->status){
+            case OK:{
+                buffer.push_back(boost::asio::buffer("HTTP/1.1 200 OK\r\n"));
+                break;
+            }
+            case NotFound:{
+                buffer.push_back(boost::asio::buffer("HTTP/1.1 404 Not Found\r\n"));
+                break;
+            }
+            default:{
+//                throw
+            }
+        }
+
+        for(header h : headers){
+            buffer.push_back(boost::asio::buffer(h.name));
+            buffer.push_back(boost::asio::buffer(name_value_separator));
+            buffer.push_back(boost::asio::buffer(h.value));
+            buffer.push_back(boost::asio::buffer(crlf));
+        }
+        buffer.push_back(boost::asio::buffer(crlf));
+
+        //write param
+        if(body.size() > 0){
+            buffer.push_back(boost::asio::buffer(body.data(), body.size()));
+        }
+//        std::cout << buffer.size() << std::endl;
+
+        return buffer;
+    }
 }

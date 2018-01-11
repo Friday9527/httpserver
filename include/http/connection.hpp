@@ -51,6 +51,8 @@ namespace http{
         status_code              status;
         std::vector<header>      headers;
         std::vector<char>        body;
+
+        write_buffer get_write_buffer();
     };
 
 
@@ -61,9 +63,9 @@ namespace http{
         connection &operator =(const connection &) = delete;
         explicit connection(boost::asio::ip::tcp::socket socket, managerConnection& managerCon);
 
-        void registCb(connection_cb cb);
+        virtual ~connection();
 
-        ~connection();
+        void registCb(connection_cb cb);
 
 
         const request &getRequest();
