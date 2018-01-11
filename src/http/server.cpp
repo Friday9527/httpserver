@@ -39,12 +39,17 @@ namespace http{
 
             if(!error_code){
                 auto con = std::make_shared<connection>(std::move(m_socket), m_managerConnection);
+                con->registCb(m_cb);
                 m_managerConnection.addConnection(con);
                 con->start();
             }
             do_accept();
 
         });
+    }
+
+    void server::registerConnectioncb(connection_cb cb) {
+        m_cb = cb;
     }
 
 

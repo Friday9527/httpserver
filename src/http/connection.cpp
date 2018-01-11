@@ -41,10 +41,10 @@ namespace http {
         position = findChar(buffer, '\r', lastPos);
         copyFunction(buffer.data(), lastPos, position - lastPos, version);
 
+//
         std::cout << method << std::endl;
-        std::cout << path << std::endl;
-        std::cout << version << std::endl;
-
+//        std::cout << path << std::endl;
+//        std::cout << version << std::endl;
         //read other heander
         while(true){
             header h;
@@ -93,10 +93,25 @@ namespace http {
     }
 
     void connection::start() {
-        m_socket.async_read_some(boost::asio::buffer(m_buffer), [this](boost::system::error_code error_code, std::size_t bytes_transferred){
+        auto self(shared_from_this());
+        m_socket.async_read_some(boost::asio::buffer(m_buffer), [this,self](boost::system::error_code error_code, std::size_t bytes_transferred){
             if(!error_code){
-                std::cout << " no error " << std::endl;
-                request req(m_buffer, bytes_transferred);
+                try {
+                    std::cout << " no error " << std::endl;
+                    request req(m_buffer, bytes_transferred);
+                    m_request = req;
+                    if(m_cb){
+//                        auto mmself(self->shared_from_this());
+                        boost::thread t([this, self](){
+                            m_cb(self);
+                        });
+                    }
+
+                }catch (std::exception exception){
+                    std::cout << exception.what() << std::endl;
+                }
+
+
             }
             else{
                 std::cout << " error \n";
@@ -104,11 +119,23 @@ namespace http {
         });
     }
 
-    void connection::write() {
+
+
+    void connection::write(const reply &rep) {
 
     }
 
+    void connection::registCb(connection_cb cb) {
+        m_cb = cb;
+    }
 
 
+    const request& connection::getRequest() {
+        return m_request;
+    }
+
+    void connection::postReply(reply rep) {
+
+    }
 
 }

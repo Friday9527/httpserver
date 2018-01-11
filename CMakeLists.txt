@@ -26,3 +26,6 @@ include_directories("${BOOST_ROOT}/include")
 include_directories(include/)
 add_executable(study ${SOUCRES})
 target_link_libraries(study ${BOOST_LIBS})
+
+
+add_subdirectory("test")

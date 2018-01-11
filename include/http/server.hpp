@@ -7,7 +7,6 @@
 
 #include <string>
 #include <memory>
-#include <functional>
 #include <boost/asio.hpp>
 
 
@@ -15,7 +14,7 @@
 #include "connection.hpp"
 namespace http{
 
-    typedef std::function<void(connection_ptr)> connection_cb;
+
 
     class server{
     public:
@@ -23,11 +22,11 @@ namespace http{
         server(std::string address, std::string port, std::string path = "");
 
         void run();
+
+        void registerConnectioncb(connection_cb cb);
+
     private:
         void do_accept();
-
-
-
 
         //////-----------------
         std::string m_address;
@@ -40,6 +39,9 @@ namespace http{
         boost::asio::ip::tcp::socket m_socket;
 
         managerConnection m_managerConnection;
+
+
+        connection_cb m_cb;
     };
 }
 

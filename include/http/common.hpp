@@ -7,11 +7,13 @@
 
 //#include "connection.hpp"
 #include <memory>
-
+#include <functional>
 
 namespace http{
     class connection;
     typedef std::shared_ptr<connection> connection_ptr;
+
+    typedef std::function<void(connection_ptr)> connection_cb;
 }
 
 

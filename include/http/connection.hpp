@@ -9,9 +9,10 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include <boost/algorithm/algorithm.hpp>
+#include <boost/thread.hpp>
 
 
-#include "commen.hpp"
+#include "common.hpp"
 #include "ManagerCon.hpp"
 
 namespace http{
@@ -60,7 +61,15 @@ namespace http{
         connection &operator =(const connection &) = delete;
         explicit connection(boost::asio::ip::tcp::socket socket, managerConnection& managerCon);
 
+        void registCb(connection_cb cb);
+
         ~connection();
+
+
+        const request &getRequest();
+
+
+        void postReply(reply rep);
 
         void start();
 
@@ -70,7 +79,11 @@ namespace http{
 
         managerConnection &m_managerCon;
 
-        void write();
+        request m_request;
+
+        void write(const reply &rep);
+
+        connection_cb m_cb;
     };
 
 
