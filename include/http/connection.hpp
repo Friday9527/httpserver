@@ -10,8 +10,12 @@
 #include <iostream>
 #include <boost/algorithm/algorithm.hpp>
 
-#include <ManagerCon.hpp>
+
+#include "commen.hpp"
+#include "ManagerCon.hpp"
+
 namespace http{
+
 
 
     typedef std::array<char, 8196> socket_buffer;
@@ -50,10 +54,11 @@ namespace http{
 
 
 
-    class connection{
+    class connection : public std::enable_shared_from_this<connection>{
     public:
-        connection() = delete;
-        explicit connection(boost::asio::ip::tcp::socket socket, managerConnection &managerCon);
+        connection(const connection &) = delete;
+        connection &operator =(const connection &) = delete;
+        explicit connection(boost::asio::ip::tcp::socket socket, managerConnection& managerCon);
 
         ~connection();
 
@@ -63,14 +68,14 @@ namespace http{
         boost::asio::ip::tcp::socket m_socket;
         socket_buffer m_buffer;
 
-        managerConnection &managerCon;
+        managerConnection &m_managerCon;
 
         void write();
     };
 
 
 
-    typedef std::shared_ptr<connection> connection_ptr;
+
 }
 
 

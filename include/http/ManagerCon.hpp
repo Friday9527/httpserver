@@ -5,8 +5,9 @@
 #ifndef STUDY_MANAGERCON_HPP
 #define STUDY_MANAGERCON_HPP
 
-#include <connection.hpp>
+#include <http/commen.hpp>
 #include <set>
+
 namespace http{
 
     class managerConnection{

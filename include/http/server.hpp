@@ -6,12 +6,13 @@
 #define STUDY_SERVER_HPP
 
 #include <string>
-#include <connection.hpp>
+#include <memory>
 #include <functional>
 #include <boost/asio.hpp>
 
 
 #include "ManagerCon.hpp"
+#include "connection.hpp"
 namespace http{
 
     typedef std::function<void(connection_ptr)> connection_cb;
@@ -38,7 +39,7 @@ namespace http{
         boost::asio::ip::tcp::acceptor m_acceptor;
         boost::asio::ip::tcp::socket m_socket;
 
-        managerConnection managerConnection;
+        managerConnection m_managerConnection;
     };
 }
 

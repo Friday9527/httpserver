@@ -21,7 +21,7 @@ FIND_PACKAGE(Boost 1.60 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 
 
 file(GLOB BOOST_LIBS "${BOOST_ROOT}/lib/*.a")
-file(GLOB SOUCRES "include/*.hpp" "src/*.cpp" main.cpp)
+file(GLOB SOUCRES "include/http/*.hpp" "src/http/*.cpp" main.cpp)
 include_directories("${BOOST_ROOT}/include")
 include_directories(include/)
 add_executable(study ${SOUCRES})

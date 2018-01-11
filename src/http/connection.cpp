@@ -4,7 +4,7 @@
 
 
 
-#include <connection.hpp>
+#include <http/connection.hpp>
 
 
 namespace http {
@@ -67,23 +67,25 @@ namespace http {
             }
 
 
-            std::cout << h.name << std::endl;
-            std::cout << h.name.size() << std::endl;
-            std::cout << h.value << std::endl;
-            std::cout << h.value.size() << std::endl;
+//            std::cout << h.name << std::endl;
+//            std::cout << h.name.size() << std::endl;
+//            std::cout << h.value << std::endl;
+//            std::cout << h.value.size() << std::endl;
+//
+//            if(h.value.size() > 0 && h.name.size() > 0){
+//                headers.push_back(h);
+//            }
 
-            if(h.value.size() > 0 && h.name.size() > 0){
-                headers.push_back(h);
-            }
+
         }
 
     }
 
 
 
-    connection::connection(boost::asio::ip::tcp::socket socket, managerConnection &managerConnection1)
+    connection::connection(boost::asio::ip::tcp::socket socket, managerConnection &managerCon)
     :m_socket(std::move(socket))
-    ,managerCon(managerConnection1){
+    ,m_managerCon(managerCon){
     }
 
     connection::~connection() {
@@ -94,7 +96,7 @@ namespace http {
         m_socket.async_read_some(boost::asio::buffer(m_buffer), [this](boost::system::error_code error_code, std::size_t bytes_transferred){
             if(!error_code){
                 std::cout << " no error " << std::endl;
-                request re(m_buffer, bytes_transferred);
+                request req(m_buffer, bytes_transferred);
             }
             else{
                 std::cout << " error \n";

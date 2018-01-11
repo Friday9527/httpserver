@@ -3,7 +3,7 @@
 //
 
 
-#include <server.hpp>
+#include <http/server.hpp>
 namespace http{
 
     server::server(std::string address, std::string port, std::string path)
@@ -13,7 +13,7 @@ namespace http{
     ,m_io_service()
     ,m_acceptor(m_io_service)
     ,m_socket(m_io_service)
-    ,managerConnection()
+    ,m_managerConnection()
     {
         boost::asio::ip::tcp::resolver resolver(m_io_service);
         boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve({m_address, m_port});
@@ -38,8 +38,8 @@ namespace http{
             }
 
             if(!error_code){
-                auto con = std::make_shared<connection>(std::move(m_socket));
-                managerConnection.addConnection(con);
+                auto con = std::make_shared<connection>(std::move(m_socket), m_managerConnection);
+                m_managerConnection.addConnection(con);
                 con->start();
             }
             do_accept();
