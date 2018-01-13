@@ -83,7 +83,6 @@ namespace http {
         m_socket.async_read_some(boost::asio::buffer(m_buffer), [this,self](boost::system::error_code error_code, std::size_t bytes_transferred){
             if(!error_code){
                 try {
-                    std::cout << " no error " << std::endl;
                     request req(m_buffer, bytes_transferred);
                     m_request = req;
                     if(m_cb){
@@ -101,11 +100,11 @@ namespace http {
         });
     }
 
-
-
-    void connection::write(const reply &rep) {
-
+    void connection::close() {
+        auto self(shared_from_this());
+        m_managerCon.removeConnection(self);
     }
+
 
     void connection::registCb(connection_cb cb) {
         m_cb = cb;
@@ -159,7 +158,6 @@ namespace http {
         if(body.size() > 0){
             buffer.push_back(boost::asio::buffer(body.data(), body.size()));
         }
-//        std::cout << buffer.size() << std::endl;
 
         return buffer;
     }
