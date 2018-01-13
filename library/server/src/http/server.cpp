@@ -32,7 +32,6 @@ namespace http{
     void server::do_accept() {
 
         m_acceptor.async_accept(m_socket, [this](boost::system::error_code error_code){
-
             if(!m_acceptor.is_open()){
                 return;
             }

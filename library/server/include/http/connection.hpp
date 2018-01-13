@@ -75,8 +75,6 @@ namespace http{
 
         void start();
 
-        void close();
-
     private:
         boost::asio::ip::tcp::socket m_socket;
         socket_buffer m_buffer;

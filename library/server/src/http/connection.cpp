@@ -27,7 +27,7 @@ namespace http {
             }
             return 0;
         };
-//        std::cout << buffer.data() << std::endl;
+        std::cout << buffer.data() << std::endl;
 
         //read meth path and http/version
         position = findChar(' ', 0);
@@ -100,10 +100,7 @@ namespace http {
         });
     }
 
-    void connection::close() {
-        auto self(shared_from_this());
-        m_managerCon.removeConnection(self);
-    }
+
 
 
     void connection::registCb(connection_cb cb) {

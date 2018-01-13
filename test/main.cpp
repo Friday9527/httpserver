@@ -5,19 +5,20 @@
 
 
 
-#include <http/server.hpp>
-
-
+#include <socket/server.hpp>
+#include <socket/connection.hpp>
 int main(){
-
-    http::server ss("127.0.0.1", "4567");
-    ss.registerConnectioncb([](http::connection_ptr con){
-        http::reply rep;
-        http::request req = con->getRequest();
-        rep.headers.push_back({"Content-Length", std::to_string(req.body.size())});
-        rep.body = req.body;
-        con->postReply(rep);
+    
+    keepsocket::server ss("127.0.0.1", "4567");
+    ss.registMsgCallBack([](keepsocket::connection_ptr con ){
+        std::cout << "keepsocket::connection_ptr \n";
+        con->receive([](keepsocket::socket_buffer buffer, boost::system::error_code error_code){
+            if(buffer.size() > 0 && !error_code){
+                std::cout << buffer.data() << std::endl;
+            }
+        });
     });
-    ss.run();
+    ss.start();
+
     return 0;
 }
