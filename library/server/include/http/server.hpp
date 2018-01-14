@@ -23,6 +23,8 @@ namespace http{
 
         void run();
 
+
+
         void registerConnectioncb(connection_cb cb);
 
     private:

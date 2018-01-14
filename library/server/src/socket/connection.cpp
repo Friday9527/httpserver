@@ -41,12 +41,25 @@ namespace keepsocket{
 
     }
 
-    void connection::send(socket_buffer) {
+    void connection::send(socket_buffer buffer) {
+        m_socket.async_write_some(boost::asio::buffer(buffer), [](boost::system::error_code, std::size_t){
 
+        });
     }
 
     void connection::receive(msgCallBack callBack) {
         m_func = callBack;
+    }
+
+    template <typename itBegin, typename itEnd>
+    void connection::send(itBegin begin, itEnd end) {
+        socket_buffer buffer;
+        for(int i = 0; begin != end; ){
+            buffer[i] = *begin;
+            i++;
+            begin++;
+        }
+        send(buffer);
     }
 
 }

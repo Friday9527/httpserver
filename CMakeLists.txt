@@ -52,3 +52,4 @@ target_link_libraries(serverSocket ${BOOST_LIBS})
 
 
 add_subdirectory("test")
+add_subdirectory("programs")

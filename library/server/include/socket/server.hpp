@@ -10,6 +10,7 @@
 #include <socket/managerConnection.hpp>
 #include <socket/connection.hpp>
 #include <functional>
+#include <boost/thread.hpp>
 namespace keepsocket{
 
 
@@ -19,6 +20,7 @@ namespace keepsocket{
     public:
         server(std::string address, std::string port);
 
+        //please call pre start(), but not why.  ??
         void registMsgCallBack(msgFunc func);
         void start();
     private:

@@ -34,6 +34,9 @@ namespace keepsocket{
         void send(socket_buffer);
 
         void receive(msgCallBack callBack);
+
+        template <typename itBegin, typename itEnd>
+                void send(itBegin, itEnd);
     private:
         managerConn &m_manager;
 

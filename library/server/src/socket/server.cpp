@@ -33,6 +33,7 @@ namespace  keepsocket{
 
 
     void server::do_accept() {
+
         m_acceptor.async_accept(m_socket, [this](boost::system::error_code error_code){
             if(!m_acceptor.is_open()){
                 return;
@@ -41,8 +42,10 @@ namespace  keepsocket{
                 auto con = std::make_shared<connection>(std::move(m_socket), m_managerConn);
                 m_managerConn.start(con);
                 con->start();
-                if(m_func){
-                    m_func(con);
+                if(this->m_func){
+                    boost::thread([this, con](){
+                        this->m_func(con);
+                    });
                 }
 
             }
